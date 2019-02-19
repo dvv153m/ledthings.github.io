@@ -1,5 +1,107 @@
-<html>
+﻿<html>
+
+<head>
+	<link rel="manifest" href="manifest.json">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <script type="text/javascript" src="consts.js"></script>
+	<script type="text/javascript">
+
+		window.onload = function () {
+
+			var labelDevices = document.getElementById('lblDevices');
+			var restoredSession = JSON.parse(localStorage.getItem(DevicesKey));
+			if (restoredSession != null &&
+				restoredSession.devices != null &&
+				restoredSession.devices.length > 0) {
+				
+				labelDevices.innerText = "You devices:";
+				var table = document.getElementById('gable');
+				restoredSession.devices.forEach(function (object) {
+					var tr = document.createElement('tr');										
+					var td1 = document.createElement('td');
+					td1.innerHTML = object.deviceName;
+					td1.title = JSON.stringify(object);
+					tr.appendChild(td1);
+
+					var td2 = document.createElement('td');
+					td2.innerHTML = object.localIp;
+					td2.title = JSON.stringify(object);
+					tr.appendChild(td2);
+					
+					table.appendChild(tr);
+				});
+
+				for (var i = 0; i < table.rows.length; i++) {
+					for (var j = 0; j < table.rows[i].cells.length; j++) {
+						
+						table.rows[i].cells[j].onclick = function () {
+							device_click(this);
+						};
+					}
+				}
+			}
+			else{
+
+				labelDevices.innerText = "Empty device list";
+			}
+		};
+
+		function device_click(tableCell) {
+
+			//отправляем тестовый запрос и если получаем ответ, то переходим на соответствующую страницу			
+			//tableCell.title - хранится json представление device
+			var deviceObject = JSON.parse(tableCell.title);
+			localStorage.setItem(CurrentDeviceKey, tableCell.title);			
+			
+			var page = "error.html";
+			switch (deviceObject.deviceType) {				
+				case DeviceType.Table60:
+					page = "table.html";
+					break;
+				case DeviceType.Table91:
+					page = "table.html";
+					break;
+				case DeviceType.Cloud:
+					page = "cloud.html";
+					break;
+				case DeviceType.FirTree:
+					page = "firtree.html";
+					break;
+			}
+			
+			if(page == "error.html"){
+				alert("Не удалось подключится к устройству");
+			}
+			else{
+
+				window.location.href = page;
+			}
+		}
+
+		function addDevice() {
+
+			/*var restoredSession = JSON.parse(localStorage.getItem('session'));
+			restoredSession.devices.push({ 'localIp': "192.168.1.2", 'deviceType': 3 });
+			localStorage.setItem('session', JSON.stringify(restoredSession));*/
+			window.location.href = 'login.html';
+		}	
+
+		function clearDevices(){
+
+			localStorage.clear();
+		}	
+	</script>
+</head>
+
 <body>
-Hello
+
+	<br/>
+	<label id="lblDevices"></label><br/>
+	<table id="gable"></table><br/>
+	<button class="btn btn-light" onclick="addDevice()">Add device</button>
+	<button class="btn btn-light" onclick="clearDevices()">Clear</button>
+	</div>
 </body>
+
 </html>

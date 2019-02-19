@@ -1,0 +1,156 @@
+<html>
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<!-- <meta name="viewport" content="width=device-width, user-scalable=yes" /> -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+	<script type="text/javascript" src="consts.js"></script>
+	<script type="text/javascript">
+
+		function submit() {
+
+			var ssid = document.getElementById("fssid").value;
+			var password = document.getElementById("fpassword").value;
+
+			//todo добавить проверку на пустоту
+			var loginUrl = "http://192.168.4.3/login?ssId=" + ssid + "&password=" + password;
+			var disconnectAPUrl = "http://192.168.4.3/disconnectAP";
+
+			if (!IsDebug) {
+
+				fetchData(loginUrl)
+					.then(data => {
+
+						var device = {
+							'localIp': data.localIp,
+							'deviceType': data.deviceType,
+							'deviceName': getDeviceName(data.deviceType)
+						}
+
+						saveDevice(device);
+
+						//или вызвать метод рестарта (посмотреть что будет быстрее работать)
+						fetchData(disconnectAPUrl);//дописать then(d=> переход на страницу cloud взависимости от типа устройства)
+						//проверить зайдет ли в then
+						//stop busy indicator
+					});
+				//start busy indicator
+			}
+			else {
+
+				var testDevice = {
+					'localIp': "192.168.100.100",
+					'deviceType': 3,
+					'deviceName': getDeviceName(3)
+				}
+				saveDevice(testDevice);
+
+				var page = getPageByDeviceType(testDevice.deviceType);
+				window.location.href = page;
+			}
+		}
+
+		function saveDevice(device) {
+
+			var jsonDevice = JSON.stringify(device);
+			localStorage.setItem(CurrentDeviceKey, jsonDevice);
+
+			var restoredSession = JSON.parse(localStorage.getItem(DevicesKey));
+			if (restoredSession != null &&
+				restoredSession.devices != null &&
+				restoredSession.devices.length > 0) {
+
+				//todo сделать проверку на существование такого устройсва в коллекции
+				restoredSession.devices.push(device);
+				localStorage.setItem(DevicesKey, JSON.stringify(restoredSession));
+			}
+			else {
+
+				var devicesInfo = {
+					'devices': []
+				};
+
+				devicesInfo.devices.push(device);
+				localStorage.setItem(DevicesKey, JSON.stringify(devicesInfo));
+			}
+		}
+
+		function fetchData(url) {
+
+			return fetch(url)
+				.then(status)
+				.then(json)
+				.catch(error => {
+					var er = error;
+					console.log(er);
+				});
+		}
+
+		function status(response) {
+
+			if (response.status >= 200 && response.status < 300) {
+				return Promise.resolve(response)
+			} else {
+				return Promise.reject(new Error(response.statusText))
+			}
+		}
+
+		function json(response) {
+
+			return response.json()
+		}
+
+		function getDeviceName(deviceType) {
+
+			switch (deviceType) {
+				case DeviceType.None:
+					return "Unknown";
+				case DeviceType.Table60:
+					return "Table";
+				case DeviceType.Table91:
+					return "Table";
+				case DeviceType.Cloud:
+					return "Cloud";
+				case DeviceType.FirTree:
+					return "FirTree";
+				default:
+					return "Unknown";
+			}
+		}
+
+		function getPageByDeviceType(deviceType) {
+
+			switch (deviceType) {
+				case DeviceType.Table60:
+					return "table.html";
+				case DeviceType.Table91:
+					return "table.html";
+				case DeviceType.Cloud:
+					return "cloud.html";
+				case DeviceType.FirTree:
+					return "firtree.html";
+				default:
+					return "error.html";
+			}
+		}
+	</script>
+</head>
+
+<body>
+
+	<br/>
+	<label>Connect to esp access point and fill fields</label>
+	<br/>
+	<br/>
+	<label for="uname">SSid</label>
+	<!--Выводить пользователю список wifi сетей-->
+	<input type="text" placeholder="Enter ssid" name="uname" id="fssid" value="ASUSWiFi" required>
+	<br/>
+	<label for="psw">Password</label>
+	<input type="password" placeholder="Enter password" name="psw" id="fpassword" value="Akvalang741" required>
+	<br/>
+	<button class="btn btn-light" onclick="submit()">Submit</button>
+	</div>
+</body>
+
+</html>
