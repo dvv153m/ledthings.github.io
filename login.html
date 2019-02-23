@@ -30,7 +30,14 @@
 						saveDevice(device);
 
 						//или вызвать метод рестарта (посмотреть что будет быстрее работать)
-						fetchData(disconnectAPUrl);//дописать then(d=> переход на страницу cloud взависимости от типа устройства)
+						//дописать then(d=> переход на страницу cloud взависимости от типа устройства)
+						//может в disconnectAPUrl записать новый ip
+						disconnectAPUrl = "http://" + data.localIp + "/disconnectAP";
+						fetchData(disconnectAPUrl).then(d => {
+
+							var page = getPageByDeviceType(device.deviceType);
+							window.location.href = page;
+						});
 						//проверить зайдет ли в then
 						//stop busy indicator
 					});
@@ -44,6 +51,8 @@
 					'deviceName': getDeviceName(3)
 				}
 				saveDevice(testDevice);
+
+				disconnectAPUrl = "http://" + testDevice.localIp + "/disconnectAP";
 
 				var page = getPageByDeviceType(testDevice.deviceType);
 				window.location.href = page;
@@ -73,32 +82,7 @@
 				devicesInfo.devices.push(device);
 				localStorage.setItem(DevicesKey, JSON.stringify(devicesInfo));
 			}
-		}
-
-		function fetchData(url) {
-
-			return fetch(url)
-				.then(status)
-				.then(json)
-				.catch(error => {
-					var er = error;
-					console.log(er);
-				});
-		}
-
-		function status(response) {
-
-			if (response.status >= 200 && response.status < 300) {
-				return Promise.resolve(response)
-			} else {
-				return Promise.reject(new Error(response.statusText))
-			}
-		}
-
-		function json(response) {
-
-			return response.json()
-		}
+		}		
 
 		function getDeviceName(deviceType) {
 

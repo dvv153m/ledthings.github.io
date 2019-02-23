@@ -4,8 +4,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
 	<script type="text/javascript" src="consts.js"></script>
-	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>	
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"	crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 	<!-- <script type="text/javascript">
 		initBootstrap(document.body);
@@ -14,7 +14,7 @@
 	<script type="text/javascript">
 
 		let deviceUrl = "";
-
+		let connection;
 		window.onload = function () {
 
 			var item = localStorage.getItem(CurrentDeviceKey);
@@ -22,13 +22,44 @@
 			if (device != null) {
 
 				deviceUrl = device.localIp;
-			}			
+
+				//var connection = new WebSocket('ws://' + location.hostname + ':81/', ['arduino']);
+				connection = new WebSocket('ws://' + deviceUrl + ':81/');
+				connection.onopen = function () {
+
+					console.log('WebSocket connect', "connect");
+					connection.send('Connect ' + new Date());
+				};
+				connection.onerror = function (error) {
+
+					console.log('WebSocket Error ', error);
+				};
+				connection.onmessage = function (e) {
+
+					console.log('Server: ', e.data);
+				};
+				connection.onclose = function () {
+
+					console.log('WebSocket connection closed');
+				};
+			}
 		};
+
+		function sendRGB() {
+			var r = document.getElementById('r').value ** 2 / 255;
+			var g = document.getElementById('g').value ** 2 / 255;
+			var b = document.getElementById('b').value ** 2 / 255;
+
+			var rgb = r << 20 | g << 10 | b;
+			var rgbstr = '#' + rgb.toString(16);
+			//console.log('RGB: ' + rgbstr);
+			connection.send(rgbstr);
+		}
 
 		function sendCommand(mode, val) {
 
 			if (!IsDebug) {
-				var commandUrl = deviceUrl + "/ledthings?mode=" + mode + "&val=" + val;
+				var commandUrl = "http://" + deviceUrl + "/ledthings?mode=" + mode + "&val=" + val;
 				fetchData(commandUrl);
 			}
 			else {
@@ -43,10 +74,12 @@
 		function playStop(mode, nameId) {
 
 			if (document.getElementById(nameId).innerHTML == "Play") {
+				
 				document.getElementById(nameId).innerHTML = "Stop";
 				sendCommand(mode, DirectionType.Play);
 			}
 			else {
+
 				document.getElementById(nameId).innerHTML = "Play";
 				sendCommand(mode, DirectionType.Stop);
 			}
@@ -55,7 +88,7 @@
 </head>
 
 <body>
-	<br/>
+	<br />
 	<ul class="nav nav-tabs" id="myTab" role="tablist">
 		<li class="nav-item">
 			<a class="nav-link active" id="color-tab" data-toggle="tab" href="#color" role="tab" aria-controls="color"
@@ -75,6 +108,22 @@
 			<button type="button" class="btn btn-light" onclick="sendCommand(ModeType.Color, DirectionType.Previous)">Previous</button>
 			<button type="button" class="btn btn-light" onclick="playStop(ModeType.Color, 'colorPlayStop')" id="colorPlayStop">Play</button>
 			<button type="button" class="btn btn-light" onclick="sendCommand(ModeType.Color, DirectionType.Next)">Next</button>
+			<div style="margin:20px">
+				<table>
+					<tr>
+						<td style="width:14.4px; text-align: right">R: </td>
+						<td><input class="enabled" id="r" type="range" min="0" max="255" step="1" oninput="sendRGB();" value="0"></td>
+					</tr>
+					<tr>
+						<td style="width:14.4px; text-align: right">G: </td>
+						<td><input class="enabled" id="g" type="range" min="0" max="255" step="1" oninput="sendRGB();" value="0"></td>
+					</tr>
+					<tr>
+						<td style="width:14.4px; text-align: right">B: </td>
+						<td><input class="enabled" id="b" type="range" min="0" max="255" step="1" oninput="sendRGB();" value="0"></td>
+					</tr>
+				</table>
+			</div>
 		</div>
 		<div class="tab-pane fade" id="gradient" role="tabpanel" aria-labelledby="gradient-tab">
 			<div class="tab-pane fade show active" id="color" role="tabpanel" aria-labelledby="home-tab">
@@ -92,7 +141,7 @@
 		</div>
 	</div>
 	</div>
-	<br/>	
+	<br />
 	<a href="index.html">Device list</a>
 </body>
 

@@ -1,6 +1,6 @@
 const DevicesKey = "devices";
 const CurrentDeviceKey = "currentDevice";
-const IsDebug = true;
+const IsDebug = false;
 
 const DeviceType = {
     None: 0,
@@ -23,7 +23,9 @@ const DirectionType = {
     Previous: 1,
     Next: 2,
     Play: 3,
-    Stop: 4    
+    Stop: 4,
+    Brightness: 5,
+    SpeedAnimations: 6    
 }
 
 function includeJs(filename)
@@ -42,4 +44,29 @@ function initBootstrap(body){
     includeJs("https://code.jquery.com/jquery-3.3.1.slim.min.js", body);
     includeJs("https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js", body);
     includeJs("https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js", body);
+}
+
+function fetchData(url) {
+
+    return fetch(url)
+        .then(status)
+        .then(json)
+        .catch(error => {
+            var er = error;
+            console.log(er);
+        });
+}
+
+function status(response) {
+
+    if (response.status >= 200 && response.status < 300) {
+        return Promise.resolve(response)
+    } else {
+        return Promise.reject(new Error(response.statusText))
+    }
+}
+
+function json(response) {
+
+    return response.json()
 }
