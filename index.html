@@ -2,8 +2,9 @@
 
 <head>
 	<link rel="manifest" href="manifest.json">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">	
-    
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <script type="text/javascript" src="consts.js"></script>
 	<script type="text/javascript">
 
 		window.onload = function () {
@@ -53,21 +54,7 @@
 			var deviceObject = JSON.parse(tableCell.title);
 			localStorage.setItem(CurrentDeviceKey, tableCell.title);			
 			
-			var page = "error.html";
-			switch (deviceObject.deviceType) {				
-				case DeviceType.Table60:
-					page = "table.html";
-					break;
-				case DeviceType.Table91:
-					page = "table.html";
-					break;
-				case DeviceType.Cloud:
-					page = "cloud.html";
-					break;
-				case DeviceType.FirTree:
-					page = "firtree.html";
-					break;
-			}
+			var page = getPageByDeviceType(deviceObject.deviceType);			
 			
 			if(page == "error.html"){
 				alert("Не удалось подключится к устройству");
@@ -98,8 +85,8 @@
 	<br/>
 	<label id="lblDevices"></label><br/>
 	<table id="gable"></table><br/>
-	<button class="btn btn-light" onclick="addDevice()">Add device1</button>
-	<button class="btn btn-light" onclick="clearDevices()">Clear1</button>
+	<button class="btn btn-light" onclick="addDevice()">Add device</button>
+	<button class="btn btn-light" onclick="clearDevices()">Clear</button>
 	</div>
 </body>
 
