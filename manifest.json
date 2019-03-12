@@ -8,37 +8,37 @@
   "theme_color": "#3367D6",
   "icons": [
     {
-      "src": "../images/led48.png",
+      "src": "../ledthings.github.io/images/led48.png",
       "type": "image/png",
       "sizes": "48x48"
     },
     {
-      "src": "../images/led72.png",
+      "src": "../ledthings.github.io/images/led72.png",
       "type": "image/png",
       "sizes": "72x72"
     },
 	{
-      "src": "../images/led96.png",
+      "src": "../ledthings.github.io/images/led96.png",
       "type": "image/png",
       "sizes": "96x96"
     },
 	{
-      "src": "../images/led144.png",
+      "src": "../ledthings.github.io/images/led144.png",
       "type": "image/png",
       "sizes": "144x144"
     },
 	{
-      "src": "../images/led168.png",
+      "src": "../ledthings.github.io/images/led168.png",
       "type": "image/png",
       "sizes": "168x168"
     },
 	{
-      "src": "../images/led192.png",
+      "src": "../ledthings.github.io/images/led192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
 	{
-      "src": "../images/led512.png",
+      "src": "../ledthings.github.io/images/led512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
