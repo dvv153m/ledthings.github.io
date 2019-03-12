@@ -1,10 +1,10 @@
 const cacheName = 'v1';
 
 const cacheAssets = [
-  'index.html',
-  'about.html',
-  '/css/style.css',
-  'main.js'
+  '../ledthings.github.io/index.html',
+  '../ledthings.github.io/about.html',
+  '../ledthings.github.io/css/style.css',
+  '../ledthings.github.io/main.js'
 ];
 
 // Call Install Event
