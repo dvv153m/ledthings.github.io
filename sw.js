@@ -2,9 +2,13 @@ const cacheName = 'v1';
 
 const cacheAssets = [
   'index.html',
-  'about.html',
-  'style.css',
-  'main.js'
+  'login.html',
+  'cloud.html',
+  'bootstrap.min.css',
+  'consts.js',
+  'mqttws31.js',
+  'jquery-3.3.1.slim.min.js',
+  'bootstrap.min.js',
 ];
 
 // Call Install Event
