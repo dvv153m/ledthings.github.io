@@ -36,9 +36,9 @@
 				connection.onclose = function () {
 
 					console.log('WebSocket connection closed');
-				};
-
-				var colorWheel = iro.ColorPicker("#colorWheelDemo", {
+				};				
+			}
+			var colorWheel = iro.ColorPicker("#colorWheelDemo", {
 					// options here
 				});
 				colorWheel.on('color:change', function (color) {
@@ -50,9 +50,8 @@
 
 					var rgb = r << 20 | g << 10 | b;
 					var rgbstr = '#' + rgb.toString(16);					
-					connection.send(rgbstr);
+					//connection.send(rgbstr);
 				})
-			}
 		};
 
 		function sendRGB() {
