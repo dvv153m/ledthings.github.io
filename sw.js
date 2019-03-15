@@ -9,6 +9,7 @@ const cacheAssets = [
   'mqttws31.js',
   'jquery-3.3.1.slim.min.js',
   'bootstrap.min.js',
+  'iro.min.js'
 ];
 
 // Call Install Event
