@@ -1,4 +1,4 @@
-﻿<html>
+<html>
 
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -6,39 +6,43 @@
 	<link rel="stylesheet" href="bootstrap.min.css">
 	<style>
 		.lds-ripple {
-	   display: inline-block;
-	   position: relative;
-	   width: 64px;
-	   height: 64px;
-	   visibility: hidden;
-	 }
-	 .lds-ripple div {
-	   position: absolute;
-	   border: 4px solid #ccc;
-	   opacity: 1;
-	   border-radius: 50%;
-	   animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
-	 }
-	 .lds-ripple div:nth-child(2) {
-	   animation-delay: -0.5s;
-	 }
-	 @keyframes lds-ripple {
-	   0% {
-		 top: 28px;
-		 left: 28px;
-		 width: 0;
-		 height: 0;
-		 opacity: 1;
-	   }
-	   100% {
-		 top: -1px;
-		 left: -1px;
-		 width: 58px;
-		 height: 58px;
-		 opacity: 0;
-	   }
-	 }
-	   </style>
+			display: none;
+			position: relative;
+			width: 64px;
+			height: 64px;
+
+		}
+
+		.lds-ripple div {
+			position: absolute;
+			border: 4px solid #ccc;
+			opacity: 1;
+			border-radius: 50%;
+			animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+		}
+
+		.lds-ripple div:nth-child(2) {
+			animation-delay: -0.5s;
+		}
+
+		@keyframes lds-ripple {
+			0% {
+				top: 28px;
+				left: 28px;
+				width: 0;
+				height: 0;
+				opacity: 1;
+			}
+
+			100% {
+				top: -1px;
+				left: -1px;
+				width: 58px;
+				height: 58px;
+				opacity: 0;
+			}
+		}
+	</style>
 	<script type="text/javascript" src="consts.js"></script>
 	<script type="text/javascript" src="mqttws31.js"></script>
 	<script type="text/javascript">
@@ -47,21 +51,6 @@
 		var mqttReconnectTimeout = 2000;
 		var deviceType;
 		var isReceivedIp = false;
-
-		function getDeviceId() {
-
-			var deviceIdUrl = "http://" + deviceAPHost + "/getId?";
-			if (!IsDebug) {
-
-				fetchData(deviceIdUrl)
-					.then(data => {
-						if (typeof data != "undefined") {
-							
-							mqttTopic = data.id;
-						}					
-					});
-			}
-		}
 
 		function submit2() {
 
@@ -72,56 +61,58 @@
 
 			var ssid = document.getElementById("fssid").value;
 			var password = document.getElementById("fpassword").value;
-			
-			document.getElementById("bi").style.visibility = "visible";
+
+			document.getElementById("busyIndicator").style.display = "block";
 			document.getElementById("fssid").disabled = true;
 			document.getElementById("fpassword").disabled = true;
 			document.getElementById("save").disabled = true;
-			//document.getElementById("save2").disabled = true;
-			//
+			document.getElementById("warningInfo").style.display = "none";
+			//document.getElementById("save2").disabled = true;			
 
 			//todo добавить проверку на пустоту ssid и password
+			var deviceIdUrl = "http://" + deviceAPHost + "/getId?";
 			var loginUrl = "http://" + deviceAPHost + "/login?ssId=" + ssid + "&password=" + password;
 			var restartDeviceUrl = "http://" + deviceAPHost + "/restart";
 
 			if (!IsDebug) {
 
-				fetchData(loginUrl)
-					.then(data => {
+				fetchData(deviceIdUrl).then(data => {
 
-						if (data.isSuccess) {
+					if (typeof data != "undefined") {
 
-							deviceType = data.deviceType;
-							fetchData(restartDeviceUrl).then(d => { //todo блок then убрать и протестить
+						mqttTopic = data.id;
+						fetchData(loginUrl)
+							.then(data => {
 
-								let uu = 5 + 1;
-								//mqttConnect();
+								if (data.isSuccess) {
+
+									deviceType = data.deviceType;
+									fetchData(restartDeviceUrl);
+									mqttConnect();//todo попробовать сюда поместить
+								}
+								else {
+
+									//вывести сообщение с ошибкой
+									document.getElementById("warningInfo").style.display = "block";
+									document.getElementById("warningInfo").innerHTML = data.error;
+									document.getElementById("busyIndicator").style.display = "none";
+
+									document.getElementById("fssid").disabled = false;
+									document.getElementById("fpassword").disabled = false;
+									document.getElementById("save").disabled = false;
+								}
 							});
-							mqttConnect();//todo попробовать сюда поместить
-						}
-						/*var device = {
-							'localIp': data.localIp,
-							'deviceType': data.deviceType,
-							'deviceName': getDeviceName(data.deviceType)
-						}
+					} else {
 
-						saveDevice(device);
-
-						//или вызвать метод рестарта (посмотреть что будет быстрее работать)
-						//дописать then(d=> переход на страницу cloud взависимости от типа устройства)											
-						/*fetchData(disconnectAPUrl).then(d => {
-
-							var page = getPageByDeviceType(device.deviceType);
-							window.location.href = page;
-						});*/
-						//проверить зайдет ли в then
-						//stop busy indicator
-					});
-				//start busy indicator
+						document.getElementById("busyIndicator").style.display = "none";
+						document.getElementById("warningInfo").style.display = "block";
+						document.getElementById("warningInfo").innerHTML = "No data from device, please connect to Ledthings access point";
+					}
+				});
 			}
 			else {
 
-				var testDevice = {
+				/*var testDevice = {
 					'localIp': "192.168.100.100",
 					'deviceType': 3,
 					'deviceName': getDeviceName(3)
@@ -131,7 +122,7 @@
 				disconnectAPUrl = "http://" + testDevice.localIp + "/disconnectAP";
 
 				var page = getPageByDeviceType(testDevice.deviceType);
-				window.location.href = page;
+				window.location.href = page;*/
 			}
 		}
 
@@ -182,18 +173,14 @@
 			var topic = message.destinationName;
 			var payload = message.payloadString;
 			//проверить что в payload находится ip
-			if (isIpAddress(payload)) {				
+			if (isIpAddress(payload)) {
 
 				if (!isReceivedIp) {
 
 					isReceivedIp = true;
 					deviceAPHost = payload;
-					var restartDeviceUrl = "http://" + deviceAPHost + "/stopSendMqtt";
-					fetchData(restartDeviceUrl).then(d => {
-
-						let uu = 5 + 1;
-						//mqttConnect();
-					});					
+					var stopSendMqttUrl = "http://" + deviceAPHost + "/stopSendMqtt";
+					fetchData(stopSendMqttUrl);
 
 					var device = {
 						'localIp': payload,
@@ -212,14 +199,14 @@
 		function isIpAddress(ipAddress) {
 
 			var len = ipAddress.length;
-			if(len > 0){
+			if (len > 0) {
 
 				return true;
 			}
-			else{
+			else {
 
 				return false;
-			}			
+			}
 		}
 
 		function saveDevice(device) {
@@ -268,23 +255,29 @@
 	</script>
 </head>
 
-<body onload="getDeviceId()">
+<body>
+	<div class="alert alert-warning" role="alert" id="warningInfo" style="display: none"></div>
+	<label class="row justify-content-center">Connect to esp access point and fill fields</label>
 
-	<br />
-	<label>Connect to esp access point and fill fields</label>
-	<br />
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="lds-ripple" id="bi"><div></div><div></div></div>
-	<br />
-	<label for="uname">SSid</label>
-	<!--Выводить пользователю список wifi сетей-->
-	<input type="text" placeholder="Enter ssid" name="uname" id="fssid" value="ASUSWiFi" required>
-	<br />	
-	<label for="psw">Password</label>
-	<input type="password" placeholder="Enter password" name="psw" id="fpassword" value="Akvalang741" required>
-	<br />
-	<button class="btn btn-light" id="save" onclick="submit()">Submit</button>
-	<button class="btn btn-light" id="save2" onclick="submit2()">Submit4</button>
-	
+	<div align="center">
+		<div class="lds-ripple row justify-content-center" id="busyIndicator">
+			<div></div>
+			<div></div>
+		</div>
+	</div>
+
+	<center>
+		<label for="uname">SSid</label>
+		<!--Выводить пользователю список wifi сетей-->
+		<input type="text" placeholder="Enter ssid" name="uname" id="fssid" value="ASUSWiFi" required>
+
+		<br />
+		<label for="psw">Password</label>
+		<input type="password" placeholder="Enter password" name="psw" id="fpassword" value="Akvalang741" required>
+		<br />
+		<button class="btn btn-light" id="save" onclick="submit()">Submit</button>
+		<!---<button class="btn btn-light" id="save2" onclick="submit2()">Submit2</button>-->
+	</center>
 </body>
 
 </html>

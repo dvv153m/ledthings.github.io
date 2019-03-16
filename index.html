@@ -4,6 +4,15 @@
 	<link rel="manifest" href="manifest.json">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="stylesheet" href="bootstrap.min.css">
+	<style>
+		table {		  
+		 border-collapse: separate; /* Способ отображения границы */ 		  
+		 border-spacing: 7px 11px; /* Расстояние между ячейками */ 
+		}
+		td {
+		 padding: 5px; /* Поля вокруг текста */ 		   
+		}
+	   </style>
 	<script type="text/javascript" src="consts.js"></script>
 	<script type="text/javascript" src="main.js"></script>
 	<script type="text/javascript">
@@ -67,10 +76,7 @@
 		}
 
 		function addDevice() {
-
-			/*var restoredSession = JSON.parse(localStorage.getItem('session'));
-			restoredSession.devices.push({ 'localIp': "192.168.1.2", 'deviceType': 3 });
-			localStorage.setItem('session', JSON.stringify(restoredSession));*/
+			
 			window.location.href = 'login.html';
 		}	
 
@@ -82,13 +88,13 @@
 </head>
 
 <body>
-
+	<center>
 	<br/>
 	<label id="lblDevices"></label><br/>
 	<table id="gable"></table><br/>
 	<button class="btn btn-light" onclick="addDevice()">Add device</button>
 	<button class="btn btn-light" onclick="clearDevices()">Clear</button>
-	</div>
+	</center>
 </body>
 
 </html>

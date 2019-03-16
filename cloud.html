@@ -2,7 +2,7 @@
 
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<link rel="stylesheet" href="bootstrap.min.css">
+	<link rel="stylesheet" href="bootstrap.min.css">	
 	<script type="text/javascript" src="consts.js"></script>
 	<script src="jquery-3.3.1.slim.min.js"></script>
 	<script src="bootstrap.min.js"></script>
@@ -36,9 +36,9 @@
 				connection.onclose = function () {
 
 					console.log('WebSocket connection closed');
-				};				
-			}
-			var colorWheel = iro.ColorPicker("#colorWheelDemo", {
+				};
+
+				var colorWheel = iro.ColorPicker("#colorWheelDemo", {
 					// options here
 				});
 				colorWheel.on('color:change', function (color) {
@@ -49,9 +49,10 @@
 					var b = color.rgb.b ** 2 / 255;
 
 					var rgb = r << 20 | g << 10 | b;
-					var rgbstr = '#' + rgb.toString(16);					
-					//connection.send(rgbstr);
+					var rgbstr = '#' + rgb.toString(16);
+					connection.send(rgbstr);
 				})
+			}
 		};
 
 		function sendRGB() {
@@ -101,7 +102,7 @@
 
 <body>
 	<br />
-	<ul class="nav nav-tabs" id="myTab" role="tablist">
+	<ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
 		<li class="nav-item">
 			<a class="nav-link active" id="color-tab" data-toggle="tab" href="#color" role="tab" aria-controls="color"
 				aria-selected="true">Colors</a>
@@ -118,34 +119,36 @@
 	<div class="tab-content" id="myTabContent">
 		<div class="tab-pane fade show active" id="color" role="tabpanel" aria-labelledby="home-tab">
 			<br />
-			<button type="button" class="btn btn-light"
+			<button type="button" class="btn btn-light" style="width:32%; margin-left: 7px"
 				onclick="sendCommand(ModeType.Color, DirectionType.Previous)">Previous</button>
-			<button type="button" class="btn btn-light" onclick="playStop(ModeType.Color, 'colorPlayStop')"
-				id="colorPlayStop">Play</button>
-			<button type="button" class="btn btn-light"
+			<button type="button" class="btn btn-light" style="width:32%"
+				onclick="playStop(ModeType.Color, 'colorPlayStop')" id="colorPlayStop">Play</button>
+			<button type="button" class="btn btn-light" style="width:32%"
 				onclick="sendCommand(ModeType.Color, DirectionType.Next)">Next</button>
 
-			<div class="wheel" id="colorWheelDemo"></div>			
+			
+			<div class="wheel row justify-content-center" id="colorWheelDemo"></div> 
+			
 		</div>
 		<div class="tab-pane fade" id="gradient" role="tabpanel" aria-labelledby="gradient-tab">
 			<div class="tab-pane fade show active" id="color" role="tabpanel" aria-labelledby="home-tab">
 				<br />
-				<button type="button" class="btn btn-light"
+				<button type="button" class="btn btn-light" style="width:32%; margin-left: 7px"
 					onclick="sendCommand(ModeType.Gradient, DirectionType.Previous)">Previous</button>
-				<button type="button" class="btn btn-light" onclick="playStop(ModeType.Gradient, 'gradientPlayStop')"
-					id="gradientPlayStop">Play</button>
-				<button type="button" class="btn btn-light"
+				<button type="button" class="btn btn-light" style="width:32%"
+				 	onclick="playStop(ModeType.Gradient, 'gradientPlayStop')" id="gradientPlayStop">Play</button>
+				<button type="button" class="btn btn-light" style="width:32%"
 					onclick="sendCommand(ModeType.Gradient, DirectionType.Next)">Next</button>
 			</div>
 		</div>
 		<div class="tab-pane fade" id="animation" role="tabpanel" aria-labelledby="animation-tab">
 			<div class="tab-pane fade show active" id="color" role="tabpanel" aria-labelledby="home-tab">
 				<br />
-				<button type="button" class="btn btn-light"
+				<button type="button" class="btn btn-light" style="width:32%; margin-left: 7px"
 					onclick="sendCommand(ModeType.Animation, DirectionType.Previous)">Previous</button>
-				<button type="button" class="btn btn-light" onclick="playStop(ModeType.Animation, 'animationPlayStop')"
-					id="animationPlayStop">Stop</button>
-				<button type="button" class="btn btn-light"
+				<button type="button" class="btn btn-light" style="width:32%"
+				 onclick="playStop(ModeType.Animation, 'animationPlayStop')" id="animationPlayStop">Stop</button>
+				<button type="button" class="btn btn-light" style="width:32%"
 					onclick="sendCommand(ModeType.Animation, DirectionType.Next)">Next</button>
 			</div>
 		</div>
