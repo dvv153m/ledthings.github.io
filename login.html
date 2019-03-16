@@ -118,9 +118,7 @@
 					'deviceName': getDeviceName(3)
 				}
 				saveDevice(testDevice);
-
-				disconnectAPUrl = "http://" + testDevice.localIp + "/disconnectAP";
-
+		
 				var page = getPageByDeviceType(testDevice.deviceType);
 				window.location.href = page;
 			}
