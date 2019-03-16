@@ -1,6 +1,6 @@
 const DevicesKey = "devices";
 const CurrentDeviceKey = "currentDevice";
-const IsDebug = false;
+const IsDebug = true;
 
 const DeviceType = {
     None: 0,
