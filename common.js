@@ -72,7 +72,7 @@ function submit() {
     var restartDeviceUrl = "http://" + deviceAPHost + "/restart";
 
     if (document.getElementById('wifiID').checked) {
-
+        alert(loginUrl);
         fetchData(loginUrl)
             .then(data => {
 
