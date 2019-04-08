@@ -1,6 +1,6 @@
 const DevicesKey = "devices";
 const CurrentDeviceKey = "currentDevice";
-const IsDebug = true;
+const IsLocalServer = true;
 
 const DeviceType = {
     None: 0,
@@ -15,7 +15,7 @@ const ModeType = {
     Color: 1,
     Gradient: 2,
     Animation: 3,
-    Interactivity: 4    
+    Interactivity: 4
 }
 
 const DirectionType = {
@@ -25,10 +25,17 @@ const DirectionType = {
     Play: 3,
     Stop: 4,
     Brightness: 5,
-    SpeedAnimations: 6    
+    SpeedAnimations: 6
 }
 
 deviceAPHost = "192.168.4.3";
+deviceUrl = "";
+
+var mqtt;
+mqttReconnectTimeout = 2000;
+var deviceType;
+isReceivedIp = false;
+count = 0;
 
 mqttHost = 'm12.cloudmqtt.com';
 mqttPort = 30989;
@@ -40,43 +47,5 @@ mqttPassword = "aOT8BRDcRi-Q";
 mqttCleanSession = true;
 mqttPath = "/mqtt";
 
-function getPageByDeviceType(deviceType) {
-
-    switch (deviceType) {
-        case DeviceType.Table60:
-            return "table.html";
-        case DeviceType.Table91:
-            return "table.html";
-        case DeviceType.Cloud:
-            return "cloud.html";
-        case DeviceType.FirTree:
-            return "firtree.html";
-        default:
-            return "error.html";
-    }
-}
-
-function fetchData(url) {
-
-    return fetch(url)
-        .then(status)
-        .then(json)
-        .catch(error => {
-            var er = error;
-            console.log(er);
-        });
-}
-
-function status(response) {
-
-    if (response.status >= 200 && response.status < 300) {
-        return Promise.resolve(response)
-    } else {
-        return Promise.reject(new Error(response.statusText))
-    }
-}
-
-function json(response) {
-
-    return response.json()
-}
+var webSocket;
+isWebSocketConnected = false;

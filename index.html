@@ -5,16 +5,64 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link rel="stylesheet" href="bootstrap.min.css">
 	<style>
-		table {		  
-		 border-collapse: separate; /* Способ отображения границы */ 		  
-		 border-spacing: 7px 11px; /* Расстояние между ячейками */ 
+		/*todo стиль спрятать в отдельный файл*/
+		table {
+			border-collapse: separate;
+			/* Способ отображения границы */
+			border-spacing: 7px 11px;
+			/* Расстояние между ячейками */
 		}
+
 		td {
-		 padding: 5px; /* Поля вокруг текста */ 		   
+			padding: 5px;
+			/* Поля вокруг текста */
 		}
-	   </style>
+
+		.lds-ripple {
+			display: none;
+			position: relative;
+			width: 64px;
+			height: 64px;
+
+		}
+
+		.lds-ripple div {
+			position: absolute;
+			border: 4px solid #ccc;
+			opacity: 1;
+			border-radius: 50%;
+			animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+		}
+
+		.lds-ripple div:nth-child(2) {
+			animation-delay: -0.5s;
+		}
+
+		@keyframes lds-ripple {
+			0% {
+				top: 28px;
+				left: 28px;
+				width: 0;
+				height: 0;
+				opacity: 1;
+			}
+
+			100% {
+				top: -1px;
+				left: -1px;
+				width: 58px;
+				height: 58px;
+				opacity: 0;
+			}
+		}
+	</style>
+
 	<script type="text/javascript" src="consts.js"></script>
-	<script type="text/javascript" src="main.js"></script>
+	<script type="text/javascript" src="common.js"></script>
+	<script type="text/javascript" src="mqttws31.js"></script>
+	<script src="jquery-3.3.1.slim.min.js"></script>
+	<script src="bootstrap.min.js"></script>
+	<script src="iro.min.js"></script>
 	<script type="text/javascript">
 
 		window.onload = function () {
@@ -24,11 +72,11 @@
 			if (restoredSession != null &&
 				restoredSession.devices != null &&
 				restoredSession.devices.length > 0) {
-				
+
 				labelDevices.innerText = "You devices:";
 				var table = document.getElementById('gable');
 				restoredSession.devices.forEach(function (object) {
-					var tr = document.createElement('tr');										
+					var tr = document.createElement('tr');
 					var td1 = document.createElement('td');
 					td1.innerHTML = object.deviceName;
 					td1.title = JSON.stringify(object);
@@ -38,63 +86,141 @@
 					td2.innerHTML = object.localIp;
 					td2.title = JSON.stringify(object);
 					tr.appendChild(td2);
-					
+
 					table.appendChild(tr);
 				});
 
 				for (var i = 0; i < table.rows.length; i++) {
 					for (var j = 0; j < table.rows[i].cells.length; j++) {
-						
+
 						table.rows[i].cells[j].onclick = function () {
 							device_click(this);
 						};
 					}
 				}
 			}
-			else{
+			else {
 
 				labelDevices.innerText = "Empty device list";
 			}
 		};
 
-		function device_click(tableCell) {
-
-			//отправляем тестовый запрос и если получаем ответ, то переходим на соответствующую страницу			
-			//tableCell.title - хранится json представление device
-			var deviceObject = JSON.parse(tableCell.title);
-			localStorage.setItem(CurrentDeviceKey, tableCell.title);			
-			
-			var page = getPageByDeviceType(deviceObject.deviceType);			
-			
-			if(page == "error.html"){
-				alert("Не удалось подключится к устройству");
-			}
-			else{
-
-				window.location.href = page;
-			}
-		}
-
-		function addDevice() {
-			
-			window.location.href = 'login.html';
-		}	
-
-		function clearDevices(){
-
-			localStorage.clear();
-		}	
 	</script>
 </head>
 
 <body>
-	<center>
-	<br/>
-	<label id="lblDevices"></label><br/>
-	<table id="gable"></table><br/>
-	<button class="btn btn-light" onclick="addDevice()">Add device</button>
-	<button class="btn btn-light" onclick="clearDevices()">Clear</button>
-	</center>
+	<div class="alert alert-warning" role="alert" id="warningInfo" style="display: none"></div>
+
+	<div id="indexDiv">
+		<center>
+			<br />
+			<label id="lblDevices"></label><br />
+			<table id="gable"></table><br />
+			<button class="btn btn-light" onclick="addDevice()">Add device</button>
+			<button class="btn btn-light" onclick="clearDevices()">Clear</button>
+		</center>
+	</div>
+
+	<div id="loginDiv" style="display:none">
+		<center>
+			<label>Connect to esp access point and fill fields</label>
+
+			<div align="center">
+				<div class="lds-ripple row justify-content-center" id="busyIndicator">
+					<div></div>
+					<div></div>
+				</div>
+			</div>
+
+			<div class="custom-control custom-radio">
+				<input type="radio" class="custom-control-input" onclick="radioClick('wifi')" id="wifiID"
+					name="defaultExampleRadios" checked>
+				<label class="custom-control-label" for="wifiID">Wi-fi credentials</label>
+			</div>
+
+			<div class="custom-control custom-radio">
+				<input type="radio" class="custom-control-input" onclick="radioClick('ip')" id="ipID"
+					name="defaultExampleRadios">
+				<label class="custom-control-label" for="ipID">IP Credentials</label>
+			</div><br />
+
+			<div id="wific">
+				<label for="uname">SSid</label>
+				<!--Выводить пользователю список wifi сетей-->
+				<input type="text" placeholder="Enter ssid" name="uname" id="fssid" value="ASUSWiFi" required>
+				<br />
+				<label for="psw">Password</label>
+				<input type="password" placeholder="Enter password" name="psw" id="fpassword" value="Akvalang741"
+					required>
+				<br /><br />
+			</div>
+			<div id="ipc">
+				<label for="uname" disabled>IP</label>
+				<input type="text" placeholder="Enter ip" name="uname" id="fip" value="192.168.1.1" required disabled>
+			</div>
+
+			<br />
+			<button class="btn btn-light" id="save" onclick="submit()">Submit</button><br /><br />
+		</center>
+	</div>
+
+	<div id="cloudDiv" style="display:none">
+		<br />
+		<ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
+			<li class="nav-item">
+				<a class="nav-link active" id="color-tab" data-toggle="tab" href="#color" role="tab"
+					aria-controls="color" aria-selected="true">Colors</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="gradient-tab" data-toggle="tab" href="#gradient" role="tab"
+					aria-controls="gradient" aria-selected="false">Gradients</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="animation-tab" data-toggle="tab" href="#animation" role="tab"
+					aria-controls="animation" aria-selected="false">Animations</a>
+			</li>
+		</ul>
+		<div class="tab-content" id="myTabContent">
+			<div class="tab-pane fade show active" id="color" role="tabpanel" aria-labelledby="home-tab">
+				<br />
+				<button type="button" class="btn btn-light" style="width:31.5%; margin-left: 7px"
+					onclick="sendCommand(ModeType.Color, DirectionType.Previous)">Previous2</button>
+				<button type="button" class="btn btn-light" style="width:31.5%"
+					onclick="playStop(ModeType.Color, 'colorPlayStop')" id="colorPlayStop">Play</button>
+				<button type="button" class="btn btn-light" style="width:31.5%"
+					onclick="sendCommand(ModeType.Color, DirectionType.Next)">Next</button>
+
+				<div class="wheel row justify-content-center" id="colorWheelDemo"></div>
+
+			</div>
+			<div class="tab-pane fade" id="gradient" role="tabpanel" aria-labelledby="gradient-tab">
+				<div class="tab-pane fade show active" id="color" role="tabpanel" aria-labelledby="home-tab">
+					<br />
+					<button type="button" class="btn btn-light" style="width:31.5%; margin-left: 7px"
+						onclick="sendCommand(ModeType.Gradient, DirectionType.Previous)">Previous</button>
+					<button type="button" class="btn btn-light" style="width:31.5%"
+						onclick="playStop(ModeType.Gradient, 'gradientPlayStop')" id="gradientPlayStop">Play</button>
+					<button type="button" class="btn btn-light" style="width:31.5%"
+						onclick="sendCommand(ModeType.Gradient, DirectionType.Next)">Next</button>
+				</div>
+			</div>
+			<div class="tab-pane fade" id="animation" role="tabpanel" aria-labelledby="animation-tab">
+				<div class="tab-pane fade show active" id="color" role="tabpanel" aria-labelledby="home-tab">
+					<br />
+					<button type="button" class="btn btn-light" style="width:31.5%; margin-left: 7px"
+						onclick="sendCommand(ModeType.Animation, DirectionType.Previous)">Previous</button>
+					<button type="button" class="btn btn-light" style="width:31.5%"
+						onclick="playStop(ModeType.Animation, 'animationPlayStop')" id="animationPlayStop">Stop</button>
+					<button type="button" class="btn btn-light" style="width:31.5%"
+						onclick="sendCommand(ModeType.Animation, DirectionType.Next)">Next</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<br />
+	<a href="index.html">Device list</a><br />
+	<button type="button" class="btn btn-light" onclick="resetCommand()">Reset</button>
+	</div>
 </body>
 
 </html>
